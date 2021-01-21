@@ -2,7 +2,7 @@
 #include <time.h>
 #include <stdlib.h>
 
-#define MAX_TIME 50
+#define MAX_TIME 200
 
 /* Calculate the tortoise's movements */
 int tortoise_movement(){
