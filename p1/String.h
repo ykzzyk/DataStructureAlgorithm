@@ -17,7 +17,7 @@ void Capacity(string_type str);
 void Retrieve(int i, string_type str);
 string_type Concatenate(string_type str1, string_type str2);
 void Copy (string_type str1, string_type str2);
-void Destroy(string_type str);
+void Destroy(string_type *str);
 bool Compare(string_type str1, string_type str2);
 
 
@@ -106,59 +106,9 @@ void Copy(string_type str1, string_type str2){
 
 }
 
-void Destroy(string_type str){
+void Destroy(string_type *str){
 
-  // string_type *p;
-  // p = (string_type *)malloc(sizeof(string_type));
-
-  // p = &str;
-
-  // if(p){
-  //   printf("not null\n");
-  //   p->element = NULL;
-  //   // p->length = 0;
-  //   // p->capacity = 0;
-  //   // free(p);
-  //   // p = NULL;
-  // }
-  // else{
-  //   printf("null");
-  // }
-
-  // free(p);
-
-
-  // printf("hhh");
-
-  // printf("true");
-  // free(p);
-  // p = NULL;
-
-  // while (p->element != '\0')
-  //   {
-  //     free(p);
-  //   }
-
-
-  // /* free all pointers */
-
-  // p->element[0] = '\0';
-  // p->length = 0;
-  // p->capacity = 0;
-
-  // Print(str);
-  // Length(str);
-  // Capacity(str);
-
-  // free(p->element);
-  // free(p->length);
-  // free(p->capacity);
-  
-  str.element[0] = '\0';
-  str.length = 0;
-  str.capacity = 0;
-
-  // free(str1.element);
+  free(str);
 
   printf("The element is successfully destroyed.\n");
 }

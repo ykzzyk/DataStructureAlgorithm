@@ -8,34 +8,37 @@ char c[] = "hello everyone!";
 
 
 int main(){
-string_type str1, str2, str3;
-str1 = Create(a, 15);
-str2 = Create(b, 15);
-str3 = Create(c, 40);
+string_type *str1 = (string_type *) malloc (sizeof(string_type));
+string_type *str2 = (string_type *) malloc (sizeof(string_type));
+string_type *str3 = (string_type *) malloc (sizeof(string_type));
+
+*str1 = Create(a, 15);
+*str2 = Create(b, 15);
+*str3 = Create(c, 40);
 
 printf("TEST THE Print FUNCTION:\n");
-Print(str1);
+Print(*str1);
 
 printf("\n\nTEST THE Length FUNCTION:\n");
-Length(str1);
+Length(*str1);
 
 printf("\n\nTEST THE Capacity FUNCTION:\n");
-Capacity(str1);
+Capacity(*str1);
 
 printf("\n\nTEST THE Retrieve FUNCTION:\n");
-Retrieve(2, str1);
-Retrieve(-1, str1);
-Retrieve(10, str1);
+Retrieve(2, *str1);
+Retrieve(-1, *str1);
+Retrieve(10, *str1);
 
 printf("\n\nTEST THE Concatenate FUNCTION:\n");
-Print(Concatenate(str1, str2));
-Print(Concatenate(str3, str2));
+Print(Concatenate(*str1, *str2));
+Print(Concatenate(*str3, *str2));
 
 printf("\n\nTEST THE Compare FUNCTION:\n");
-printf("Is s1 is lexicographically greater than s2: %s\n",Compare(str1, str2) ? "true" : "false");
+printf("Is s1 is lexicographically greater than s2: %s\n",Compare(*str1, *str2) ? "true" : "false");
 
 printf("\n\nTEST THE Copy FUNCTION:\n");
-Copy(str1, str2);
+Copy(*str1, *str2);
 
 printf("\n\nTEST THE Destroy FUNCTION:\n");
 Destroy(str1);
