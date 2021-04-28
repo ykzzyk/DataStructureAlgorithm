@@ -2,18 +2,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <ctype.h>
 #include "stack.h"
 #include "link.h"
 
 int priority(char* op){
-    if (op[0] == '(' || op[0] == ')'){
-        return 4;
-    }
-    else if (op[0] == '*' || op[0] == '/'){
-        return 2;
+    if (op[0] == '('){
+        return 0;
     }
     else if (op[0] == '+' || op[0] == '-'){
         return 1;
+    }
+    else if (op[0] == '*' || op[0] == '/'){
+        return 2;
     }
     return 0;
 }
@@ -30,41 +31,61 @@ int str_cmp(char input[],char check[])
     return result;
 }
 
-int main(void){
-    StringStackPtr ptr = NULL;
-    LinkNodePtr list = NULL;
-    LinkNodePtr head = NULL;
-    LinkNodePtr output = NULL;
-    char* data, *op;
-    int cnt = 0, pre_prio = 0, cur_prio = 0;
-
-    // char* s[100] = {"20", "-", "(", "5",
-    //                 "*", "(", "3", "+",
-    //                 "(", "80", "/", "20",
-    //                 ")", ")", "+", "6", ")"};
-
-
-    char* s[100] = {"2", "+", "(", "(", "8", "+", "12", ")", "/", "10", "-", "3", ")", "*", "5"};
-
-    // char* s[100] = {"(", "2", "+", "8", ")", "/", "5", "+", "3", "-", "6", "*", "9"};
-
-    // char* s[100] = {"2", "*", "(", "3",
-    //                 "+", "4", ")", "*",
-    //                 "5"};
-
-    // char* s[100] = {"(", "(", "(", "4", "+", "5", ")", "/", "3", "*", "5", ")",
-    //                 "/", "5", "+", "100", "/", "10", ")", "-", "4", "*", "3"};
-
-    // char* s[100] = {"20", "-", "(", "(", "(", "(", "4", "+", "5", ")", "/", "3", "*", "5", ")",
-    //                "/", "5", "+", "100", "/", "10", ")", "-", "4", ")", "*", "3"};
-
+LinkNodePtr userInput(){
     // (((4+5)/3*5)/5+100/10)-4*3
-    // 20-((((4+5)/3*5)/5+100/10)-4)*3     
+    // 20-((((4+5)/3*5)/5+100/10)-4)*3  
+    // (2+8)/5+3-6*9  
+    char str[100] = "", num[10] = "", temp[1] = "";
+    int j = 0;
+    LinkNodePtr list = NULL;
 
-    str2link(&list, s);
-    
-    // print_list(list);
+    printf("Please type an equation (note: no spaces between the equation):\n");
+    scanf("%s", str);
 
+    for(int i = 0; str[i] != '\0'; i++){
+        if (isalnum(str[i]) == 0){
+            if (!str_cmp(num, "")){
+                insert(&list, num);
+                memset(num,0,sizeof(num));
+                j = 0;
+            }
+            temp[0] = str[i];
+            insert(&list, temp);
+            memset(temp,0,sizeof(temp));
+        }
+        else{
+            num[j] = str[i];
+            j++;
+        }
+
+        // Check the end condition
+        if (str[i+1] == '\0'){
+            if (!str_cmp(num, "")){
+                insert(&list, num);
+                memset(num,0,sizeof(num));
+                j = 0;
+            }
+        }
+        
+    }
+
+    return list;
+
+}
+
+int main(void){
+    StringStackPtr ptr = NULL; // stack
+    StringStackPtr ptr_e = NULL; // stack
+    LinkNodePtr list = NULL; // link list
+    LinkNodePtr head = NULL; // link list
+    LinkNodePtr output = NULL; // link list
+    char *data, *op;
+    char res[10] = "";
+
+    // Convert the user's input to link list
+    list = userInput();
+
+    // Infix to postfix conversion
     head = list;
     while(head != NULL){
 
@@ -75,57 +96,20 @@ int main(void){
         if (atoi(data) != 0){
             insert(&output, data);
         }
-        // Else, data is an operator
+        else if (str_cmp(data, "(")){
+            push(&ptr, data);
+        }
+        else if (str_cmp(data, ")")){
+            while (!str_cmp(op=pop(&ptr), "("))
+            {
+                insert(&output, op);
+            }
+        }
         else{
-            if (!isStackEmpty(ptr)){pre_prio = priority(ptr->str);}
-            else{pre_prio = 0;}
-            
-            // If operator is (, then increase cnt by 1
-            if (str_cmp(data, "(")){
-                cnt += 1;
-                if (!isStackEmpty(ptr)){
-                    if (str_cmp(ptr->str, "-")){
-                        op = pop(&ptr);
-                        insert(&output, op);
-                    }
-                }
-                
+            while((ptr != NULL) && priority(ptr->str) >= priority(data)){
+                insert(&output, pop(&ptr));
             }
-            // else if the operator is ), the decrease the cnt by 1
-            else if (str_cmp(data, ")")){
-                op = " ";
-                while(!str_cmp(op, "(") && (!isStackEmpty(ptr))){
-                    op = pop(&ptr);
-                    // Only if the operators are not parentheses, 
-                    // we insert it into the output list
-                    if (!str_cmp(op, "(")){
-                        insert(&output, op);
-                    }
-                }
-                cnt -= 1;
-                if (cnt > 0){continue;}
-            }
-            // else, if there no parentheses
-            else{
-                if (cnt == 0 && !isStackEmpty(ptr)){
-                    cur_prio = priority(data);
-                    printf("current data: %s, %d\n", data, cur_prio);
-                    printf("diff, %d\n", (cur_prio - pre_prio));
-                    while((cur_prio - pre_prio <= 0) && (!isStackEmpty(ptr))){
-                        printf("in while: %s, %d\n", data, cur_prio);
-
-                        op = pop(&ptr);
-                        insert(&output, op);
-
-                        if (!isStackEmpty(ptr)){pre_prio = priority(ptr->str);}
-                        else{pre_prio = 0;}
-                    }
-                }
-            }
-            if (!str_cmp(data, ")")){
-                push(&ptr, data);
-                cur_prio = priority(ptr->str);
-            }
+            push(&ptr, data);
         }
 
         // Update head to next ptr
@@ -134,10 +118,50 @@ int main(void){
     }
 
     while(!isStackEmpty(ptr)){
-        op = pop(&ptr);
-        insert(&output, op);
+        insert(&output, pop(&ptr));
     }
 
+    // the postfix equation
+    printf("\nThe postfix equation is:\n");
     print_list(output);
-    
+
+    head = output;
+    // Evaluation
+    while(head != NULL){
+        // Process the single item in head
+        data = head->str;
+        // If the data is not an operator
+        if (atoi(data) != 0){
+            push(&ptr_e, data);
+        }
+        // If the data is an operator
+        else{
+            int b = atoi(pop(&ptr_e));
+            int a = atoi(pop(&ptr_e));
+            memset(res,0,sizeof(res));
+
+            if (str_cmp(data, "+")){
+                sprintf(res, "%d", a+b);
+            }
+            else if (str_cmp(data, "-")){
+                sprintf(res, "%d", a-b);
+            }
+            else if (str_cmp(data, "*")){
+                sprintf(res, "%d", a*b);
+            }
+            else if (str_cmp(data, "/")){
+                sprintf(res, "%d", a/b);
+            }
+            push(&ptr_e, res);
+        }
+
+        // Update head to next ptr
+        head = head->nextNode;
+
+    }
+
+    // The final answer is stored in the top of the stack
+    printf("\nThe final answer is:\n");
+    printf("%s\n", pop(&ptr_e));
+
 }

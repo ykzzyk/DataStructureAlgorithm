@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 
 struct stringStack{
   char* str;
@@ -11,11 +12,15 @@ typedef struct stringStack StringStack;
 typedef StringStack *StringStackPtr;
 
 void push(StringStackPtr *ptr, char* data){
+
   StringStackPtr newPtr;
   newPtr = malloc(sizeof(StringStack));
 
+  char * copy = malloc(strlen(data) + 1); 
+  strcpy(copy, data);
+
   if (newPtr != NULL){
-    newPtr->str = data;
+    newPtr->str = copy;
     newPtr->nextPtr = *ptr;
     *ptr = newPtr;
   }
